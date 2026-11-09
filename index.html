@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bradbury Challenge Tracker</title>
+<style>
+:root{--bg:#faf7f2;--card:#fff;--ink:#2a2622;--mute:#7a7268;--line:#e6dfd4;--acc:#b5451b;--poem:#7b5ea7;--story:#c0562b;--essay:#2d7d6f;--ok:#3f8f4f}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1a17;--card:#262320;--ink:#ece6dc;--mute:#9b9185;--line:#3a352f;--acc:#e07a4f;--poem:#b79ae0;--story:#e8895f;--essay:#5cbfae;--ok:#6cc07c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Georgia,'Times New Roman',serif}
+header{padding:20px 16px 8px;max-width:900px;margin:auto}
+h1{margin:0;font-size:1.6rem}
+.sub{color:var(--mute);font-size:.9rem;font-family:system-ui,sans-serif}
+main{max-width:900px;margin:auto;padding:8px 16px 60px;font-family:system-ui,sans-serif}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.on,button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:100%}
+textarea{min-height:70px;resize:vertical;font-family:Georgia,serif}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
+.stat b{display:block;font-size:1.5rem}.stat span{color:var(--mute);font-size:.8rem}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.poem{color:var(--poem)}.story{color:var(--story)}.essay{color:var(--essay)}
+.item h3{margin:2px 0;font-size:1.1rem}
+.done h3{text-decoration:line-through;opacity:.6}
+.mute{color:var(--mute);font-size:.85rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:3px}
+.cell{aspect-ratio:1;border-radius:3px;background:var(--line);cursor:pointer}
+.cell.c1{background:#e8b89c}.cell.c2{background:#d98558}.cell.c3{background:var(--ok)}
+.cell.today{outline:2px solid var(--acc)}.cell.fut{opacity:.45}
+.cell.sel{outline:2px solid var(--ink)}
+.form{display:grid;grid-template-columns:130px 1fr 1fr;gap:8px}
+.form .full{grid-column:1/-1}
+@media(max-width:600px){.form{grid-template-columns:1fr}}
+.pl{display:grid;grid-template-columns:60px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.pl input{padding:3px 6px}
+.hide{display:none}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Bradbury Challenge</h1>
+  <div class="sub">One poem, one short story, one essay – every night for 1000 nights.</div>
+</header>
+<main>
+  <nav id="nav"></nav>
+  <div id="view"></div>
+</main>
+<script>
+const KEY='bradbury-challenge-v1';
+const TYPES=['poem','story','essay'];
+const LABEL={poem:'Poem',story:'Short story',essay:'Essay'};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const uid=()=>Math.random().toString(36).slice(2,10);
+
+let S=load(),tab='today',viewDay=null,planFilter='all',showDone=false;
+
+function load(){
+  try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
+  return{start:iso(new Date()),items:[],dayNotes:{},lastBackup:null};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function dayNum(date){
+  const [y,m,d]=S.start.split('-').map(Number);
+  const a=Date.UTC(y,m-1,d),b=Date.UTC(date.getFullYear(),date.getMonth(),date.getDate());
+  return Math.round((b-a)/864e5)+1;
+}
+function dayDate(n){const [y,m,d]=S.start.split('-').map(Number);return new Date(y,m-1,d+n-1)}
+const fmt=d=>d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const today=()=>dayNum(new Date());
+const itemsFor=(n,t)=>S.items.filter(i=>i.day===n&&(!t||i.type===t));
+const count=n=>TYPES.filter(t=>itemsFor(n,t).some(i=>i.done)).length;
+
+function stats(){
+  const t=today();let full=0,total=0,streak=0;
+  for(let n=1;n<=1000;n++){const c=count(n);total+=S.items.filter(i=>i.day===n&&i.done).length;if(c===3)full++}
+  let n=t;if(count(n)<3)n--;
+  while(n>=1&&count(n)===3){streak++;n--}
+  return{full,total,streak,t};
+}
+function nextFreeDay(type){
+  let n=Math.max(1,today());
+  while(S.items.some(i=>i.type===type&&i.day===n))n++;
+  return n;
+}
+
+function renderNav(){
+  const tabs=[['today','Today'],['plan','Plan'],['journal','Journal'],['backup','Backup']];
+  $('#nav').innerHTML=tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('');
+}
+function render(){
+  renderNav();
+  if(viewDay==null)viewDay=Math.min(Math.max(today(),1),1000);
+  ({today:rToday,plan:rPlan,journal:rJournal,backup:rBackup})[tab]();
+}
+
+function rToday(){
+  const st=stats(),n=viewDay;
+  const cells=[];
+  for(let d=1;d<=1000;d++){
+    const c=count(d);
+    cells.push(`<div class="cell c${c} ${d===st.t?'today':''} ${d>st.t?'fut':''} ${d===n?'sel':''}" data-go="${d}" title="Day ${d} · ${fmt(dayDate(d))} · ${c}/3"></div>`);
+  }
+  const blocks=TYPES.map(t=>{
+    const its=itemsFor(n,t);
+    if(!its.length)return`<div class="card"><div class="tag ${t}">${LABEL[t]}</div><div class="mute">Nothing planned for this day. <a href="#" data-tab="plan">Add one in Plan</a>.</div></div>`;
+    return its.map(i=>`<div class="card item ${i.done?'done':''}">
+      <div class="row"><span class="tag ${t}">${LABEL[t]}</span><span style="flex:1"></span>
+      <label class="row" style="gap:6px"><input type="checkbox" style="width:auto" data-done="${i.id}" ${i.done?'checked':''}> Read${i.doneDate?` <span class="mute">(${i.doneDate})</span>`:''}</label></div>
+      <h3>${i.link?`<a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a>`:esc(i.title)}</h3>
+      <div class="mute">${esc(i.author)}</div>
+      <textarea data-note="${i.id}" placeholder="Summary, thoughts, favourite lines…">${esc(i.note||'')}</textarea>
+      ${!i.done&&i.day<st.t?`<button style="margin-top:6px" data-totoday="${i.id}">Move to today</button>`:''}
+    </div>`).join('');
+  }).join('');
+  $('#view').innerHTML=`
+  <div class="stats">
+    <div class="card stat"><b>Day ${st.t>0&&st.t<=1000?st.t:'–'}</b><span>of 1000</span></div>
+    <div class="card stat"><b>${st.streak}</b><span>night streak</span></div>
+    <div class="card stat"><b>${st.full}</b><span>complete nights</span></div>
+    <div class="card stat"><b>${st.total}</b><span>pieces read</span></div>
+  </div>
+  <div class="card"><div class="bar"><i style="width:${st.full/10}%"></i></div>
+    <div class="mute" style="margin-top:6px">${(st.full/10).toFixed(1)}% of the challenge complete</div></div>
+  <div class="row" style="margin:14px 0 8px">
+    <button data-step="-1">←</button>
+    <div style="flex:1;text-align:center"><b>Day ${n}</b> · ${fmt(dayDate(n))}</div>
+    <button data-step="1">→</button>
+    <button data-step="0">Today</button>
+  </div>
+  ${blocks}
+  <div class="card"><div class="tag">Notes for the night</div>
+    <textarea data-daynote="${n}" placeholder="Anything about tonight's reading as a whole…">${esc(S.dayNotes[n]||'')}</textarea></div>
+  <div class="card"><div class="tag" style="margin-bottom:8px">1000 nights</div><div class="grid">${cells.join('')}</div>
+  <div class="mute" style="margin-top:8px">Click a square to jump to that day. Green = all three read.</div></div>`;
+}
+
+function rPlan(){
+  const [y,m,d]=S.start.split('-');
+  const list=S.items.filter(i=>(planFilter==='all'||i.type===planFilter)&&(showDone||!i.done))
+    .sort((a,b)=>(a.day??1e9)-(b.day??1e9));
+  $('#view').innerHTML=`
+  <div class="card"><div class="tag" style="margin-bottom:8px">Add to the plan</div>
+    <div class="form">
+      <select id="nType">${TYPES.map(t=>`<option value="${t}">${LABEL[t]}</option>`).join('')}</select>
+      <input id="nTitle" placeholder="Title">
+      <input id="nAuthor" placeholder="Author">
+      <input id="nLink" class="full" placeholder="Link / source (optional)">
+      <input id="nDay" type="number" min="1" max="1000" placeholder="Day (blank = next free)">
+      <button class="pri" data-add>Add</button>
+    </div>
+    <div class="mute" style="margin-top:8px">Bulk add: <a href="#" data-bulk>paste a list</a> (one per line, “Title | Author”).</div>
+    <div id="bulk" class="hide" style="margin-top:8px"><textarea id="bulkTxt" placeholder="The Road Not Taken | Robert Frost"></textarea>
+      <button data-bulkadd>Add all (uses selected type)</button></div>
+  </div>
+  <div class="card"><div class="row"><span class="mute">Day 1 is</span>
+    <input type="date" id="start" value="${S.start}" style="width:auto">
+    <span class="mute">(changing this shifts every date)</span></div></div>
+  <div class="row" style="margin-bottom:8px">
+    ${['all',...TYPES].map(t=>`<button class="${planFilter===t?'on':''}" data-pf="${t}">${t==='all'?'All':LABEL[t]}</button>`).join('')}
+    <label class="row" style="gap:6px;margin-left:auto"><input type="checkbox" style="width:auto" id="sd" ${showDone?'checked':''}> show read</label>
+  </div>
+  <div class="card">${list.length?list.map(i=>`<div class="pl">
+    <input type="number" min="1" max="1000" value="${i.day??''}" data-setday="${i.id}" title="Day">
+    <div><span class="tag ${i.type}">${LABEL[i.type]}</span> ${i.done?'✓ ':''}<b>${esc(i.title)}</b>
+      <div class="mute">${esc(i.author)}${i.day?` · ${fmt(dayDate(i.day))}`:''}</div></div>
+    <button data-del="${i.id}" title="Delete">✕</button></div>`).join(''):'<div class="mute">Nothing here yet.</div>'}</div>`;
+}
+
+function rJournal(){
+  const days=new Set(Object.keys(S.dayNotes).filter(k=>S.dayNotes[k]).map(Number));
+  S.items.forEach(i=>{if(i.day&&(i.note||i.done))days.add(i.day)});
+  const arr=[...days].sort((a,b)=>b-a);
+  $('#view').innerHTML=`<input id="q" placeholder="Search notes, titles, authors…" style="margin-bottom:12px">
+  <div id="jl">${jList(arr,'')}</div>`;
+}
+function jList(arr,q){
+  q=q.toLowerCase();
+  const out=arr.map(n=>{
+    const its=itemsFor(n).filter(i=>i.note||i.done);
+    const dn=S.dayNotes[n]||'';
+    const hay=(dn+its.map(i=>i.title+i.author+i.note).join(' ')).toLowerCase();
+    if(q&&!hay.includes(q))return'';
+    return`<div class="card"><b>Day ${n}</b> <span class="mute">· ${fmt(dayDate(n))}</span> <a href="#" data-go="${n}" data-tab="today" class="mute">open</a>
+    ${its.map(i=>`<div style="margin-top:8px"><span class="tag ${i.type}">${LABEL[i.type]}</span> <b>${esc(i.title)}</b> <span class="mute">${esc(i.author)}</span>
+      ${i.note?`<div style="white-space:pre-wrap;font-family:Georgia,serif">${esc(i.note)}</div>`:''}</div>`).join('')}
+    ${dn?`<div style="margin-top:8px;white-space:pre-wrap;font-family:Georgia,serif" class="mute">${esc(dn)}</div>`:''}</div>`;
+  }).join('');
+  return out||'<div class="mute">No entries yet.</div>';
+}
+
+function rBackup(){
+  $('#view').innerHTML=`<div class="card">
+    <p>Your data lives in this browser (localStorage). Download a JSON backup regularly, and import it to restore or move to another device.</p>
+    <p class="mute">Last backup: ${S.lastBackup?new Date(S.lastBackup).toLocaleString():'never'}</p>
+    <div class="row"><button class="pri" data-export>Download backup (.json)</button>
+    <button data-import>Import backup…</button>
+    <input type="file" id="file" accept=".json,application/json" class="hide"></div>
+    <p class="mute" style="margin-top:12px">Importing replaces everything currently stored.</p>
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+    <button data-reset>Erase all data</button></div>`;
+}
+
+function exportJSON(){
+  S.lastBackup=new Date().toISOString();save();
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='bradbury-backup-'+iso(new Date())+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);rBackup();
+}
+
+function addItem(type,title,author,link,day){
+  if(!title.trim())return;
+  S.items.push({id:uid(),type,title:title.trim(),author:(author||'').trim(),link:(link||'').trim(),
+    day:day||nextFreeDay(type),done:false,doneDate:null,note:''});
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,a,[data-go],[data-tab]');if(!t)return;
+  const D=t.dataset;
+  if(t.tagName==='A')e.preventDefault();
+  if(D.tab){tab=D.tab}
+  if(D.go){viewDay=+D.go;tab='today';window.scrollTo(0,0)}
+  if(D.step!==undefined){viewDay=D.step==='0'?Math.min(Math.max(today(),1),1000):Math.min(1000,Math.max(1,viewDay+ +D.step))}
+  if(D.pf)planFilter=D.pf;
+  if(D.bulk!==undefined){$('#bulk').classList.toggle('hide');return}
+  if(D.add!==undefined){
+    addItem($('#nType').value,$('#nTitle').value,$('#nAuthor').value,$('#nLink').value,parseInt($('#nDay').value)||null);save();
+  }
+  if(D.bulkadd!==undefined){
+    $('#bulkTxt').value.split('\n').filter(l=>l.trim()).forEach(l=>{const [a,b]=l.split('|');addItem($('#nType').value,a,b)});save();
+  }
+  if(D.del){if(!confirm('Delete this item and its notes?'))return;S.items=S.items.filter(i=>i.id!==D.del);save()}
+  if(D.totoday){const i=S.items.find(i=>i.id===D.totoday);
+    const n=today();const clash=S.items.find(x=>x.type===i.type&&x.day===n&&x!==i);
+    if(clash)clash.day=nextFreeDay(i.type)>n?nextFreeDay(i.type):n+1;
+    i.day=n;save();viewDay=n}
+  if(D.export!==undefined){exportJSON();return}
+  if(D.import!==undefined){$('#file').click();return}
+  if(D.reset!==undefined){if(confirm('Erase everything? Download a backup first!')){S=load.call(null,localStorage.removeItem(KEY));save()}}
+  render();
+});
+
+document.addEventListener('change',e=>{
+  const el=e.target,D=el.dataset;
+  if(D.done){const i=S.items.find(i=>i.id===D.done);i.done=el.checked;i.doneDate=el.checked?iso(new Date()):null;save();render()}
+  else if(D.setday){const i=S.items.find(i=>i.id===D.setday);i.day=parseInt(el.value)||null;save();render()}
+  else if(el.id==='start'&&el.value){S.start=el.value;save();viewDay=null;render()}
+  else if(el.id==='sd'){showDone=el.checked;render()}
+  else if(el.id==='file'){
+    const f=el.files[0];if(!f)return;const r=new FileReader();
+    r.onload=()=>{try{const j=JSON.parse(r.result);
+      if(!j||!Array.isArray(j.items)||!j.start)throw 0;
+      S={start:j.start,items:j.items,dayNotes:j.dayNotes||{},lastBackup:j.lastBackup||null};save();viewDay=null;alert('Backup imported.');render()}
+      catch(_){alert('That file is not a valid Bradbury backup.')}};
+    r.readAsText(f);
+  }
+});
+
+document.addEventListener('input',e=>{
+  const el=e.target,D=el.dataset;
+  if(D.note){S.items.find(i=>i.id===D.note).note=el.value;save()}
+  else if(D.daynote){S.dayNotes[D.daynote]=el.value;save()}
+  else if(el.id==='q'){
+    const days=new Set(Object.keys(S.dayNotes).map(Number));S.items.forEach(i=>{if(i.day&&(i.note||i.done))days.add(i.day)});
+    $('#jl').innerHTML=jList([...days].sort((a,b)=>b-a),el.value);
+  }
+});
+
+render();
+</script>
+</body>
+</html>
