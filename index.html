@@ -2,47 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
 <title>Bradbury Challenge Tracker</title>
 <style>
-:root{--bg:#faf7f2;--card:#fff;--ink:#2a2622;--mute:#7a7268;--line:#e6dfd4;--acc:#b5451b;--poem:#7b5ea7;--story:#c0562b;--essay:#2d7d6f;--ok:#3f8f4f}
-@media (prefers-color-scheme:dark){:root{--bg:#1c1a17;--card:#262320;--ink:#ece6dc;--mute:#9b9185;--line:#3a352f;--acc:#e07a4f;--poem:#b79ae0;--story:#e8895f;--essay:#5cbfae;--ok:#6cc07c}}
+:root{--bg:#faf7f2;--card:#fff;--ink:#2a2622;--mute:#7a7268;--line:#e6dfd4;--acc:#b5451b;--poem:#7b5ea7;--story:#c0562b;--essay:#2d7d6f}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1a17;--card:#262320;--ink:#ece6dc;--mute:#9b9185;--line:#3a352f;--acc:#e07a4f;--poem:#b79ae0;--story:#e8895f;--essay:#5cbfae}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Georgia,'Times New Roman',serif}
-header{padding:20px 16px 8px;max-width:900px;margin:auto}
-h1{margin:0;font-size:1.6rem}
-.sub{color:var(--mute);font-size:.9rem;font-family:system-ui,sans-serif}
-main{max-width:900px;margin:auto;padding:8px 16px 60px;font-family:system-ui,sans-serif}
-nav{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Georgia,serif}
+header,main{max-width:860px;margin:auto;padding:16px}
+main{padding-top:0;font-family:system-ui,sans-serif}
+h1{margin:0;font-size:1.6rem}h3{margin:2px 0}
+.sub,.mute{color:var(--mute);font-size:.85rem;font-family:system-ui,sans-serif}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 14px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
 button:hover{border-color:var(--acc)}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 button.on,button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
 input,select,textarea{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 10px;width:100%}
-textarea{min-height:70px;resize:vertical;font-family:Georgia,serif}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+textarea{min-height:70px;resize:vertical;font-family:Georgia,serif;margin-top:6px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
-.stat b{display:block;font-size:1.5rem}.stat span{color:var(--mute);font-size:.8rem}
-.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:8px}
+.stats .card{margin:0}
+.stats b{display:block;font-size:1.5rem}
+.stats span{color:var(--mute);font-size:.8rem}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:12px 0 4px}
 .bar i{display:block;height:100%;background:var(--acc)}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
 .poem{color:var(--poem)}.story{color:var(--story)}.essay{color:var(--essay)}
-.item h3{margin:2px 0;font-size:1.1rem}
-.done h3{text-decoration:line-through;opacity:.6}
-.mute{color:var(--mute);font-size:.85rem}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:3px}
-.cell{aspect-ratio:1;border-radius:3px;background:var(--line);cursor:pointer}
-.cell.c1{background:#e8b89c}.cell.c2{background:#d98558}.cell.c3{background:var(--ok)}
-.cell.today{outline:2px solid var(--acc)}.cell.fut{opacity:.45}
-.cell.sel{outline:2px solid var(--ink)}
+.pl{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.pl .g{flex:1 1 200px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pl input[type=date]{width:auto}
+.hide{display:none}a{color:var(--acc)}
+a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .form{display:grid;grid-template-columns:130px 1fr 1fr;gap:8px}
 .form .full{grid-column:1/-1}
 @media(max-width:600px){.form{grid-template-columns:1fr}}
-.pl{display:grid;grid-template-columns:60px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-.pl input{padding:3px 6px}
-.hide{display:none}
-a{color:var(--acc)}
+.edit-title,.edit-author,.edit-link{background:transparent;border:1px solid transparent;padding:2px 4px;border-radius:4px;font:inherit;color:inherit;width:100%}
+.edit-title{font-weight:700}
+.edit-author{font-size:.85rem;color:var(--mute)}
+.edit-link{font-size:.75rem;color:var(--mute)}
+.edit-title:hover,.edit-author:hover,.edit-link:hover{border-color:var(--line)}
+.edit-title:focus,.edit-author:focus,.edit-link:focus{border-color:var(--acc);outline:none;background:var(--bg)}
 </style>
 </head>
 <body>
@@ -51,230 +55,481 @@ a{color:var(--acc)}
   <div class="sub">One poem, one short story, one essay – every night for 1000 nights.</div>
 </header>
 <main>
-  <nav id="nav"></nav>
+  <nav id="nav" aria-label="Main navigation"></nav>
   <div id="view"></div>
 </main>
 <script>
-const KEY='bradbury-challenge-v1';
-const TYPES=['poem','story','essay'];
-const LABEL={poem:'Poem',story:'Short story',essay:'Essay'};
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const uid=()=>Math.random().toString(36).slice(2,10);
+'use strict';
+const TYPES = ['poem','story','essay'];
+const LABEL = {poem:'Poem',story:'Short story',essay:'Essay'};
+const KEY = 'bradbury-v2', OLD_KEY = 'bradbury-challenge-v1';
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-let S=load(),tab='today',viewDay=null,planFilter='all',showDone=false;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+const pd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+n);
+const todayIso = () => iso(new Date());
+const fmt = s => DATE_RE.test(s) ? pd(s).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}) : String(s);
+const uid = () => (crypto?.randomUUID?.() || Math.random().toString(36).slice(2,10) + Date.now().toString(36));
+
+function safeHref(raw){
+  if(typeof raw !== 'string') return '';
+  const s = raw.trim();
+  if(!s || s.length > 2000) return '';
+  try { const u = new URL(s, location.href); return (u.protocol==='http:'||u.protocol==='https:') ? u.href : ''; }
+  catch { return ''; }
+}
+
+const blank = () => ({app:'bradbury-challenge',version:2,items:[],dayNotes:{},updated:null,lastBackup:null});
+const valid = j => !!(j && typeof j === 'object' && Array.isArray(j.items) &&
+  (j.app === 'bradbury-challenge' || (typeof j.start === 'string' && DATE_RE.test(j.start))));
+
+function norm(j){
+  let src = j;
+  if(!j.app && typeof j.start === 'string' && DATE_RE.test(j.start)){
+    // v1 → v2 migration: day numbers → ISO dates
+    const s = pd(j.start), dn = {};
+    Object.entries(j.dayNotes || {}).forEach(([k,v]) => {
+      const n = Number(k);
+      if(v && Number.isInteger(n) && n >= 1) dn[iso(addDays(s, n-1))] = {general:String(v)};
+    });
+    src = {
+      items: j.items.map(i => {
+        if(!i || typeof i !== 'object') return null;
+        const dd = i.done ? (DATE_RE.test(i.doneDate || '') ? i.doneDate
+              : (Number.isInteger(i.day) && i.day >= 1 ? iso(addDays(s, i.day-1)) : todayIso())) : null;
+        return {...i, doneDate: dd};
+      }).filter(Boolean),
+      dayNotes: dn, lastBackup: j.lastBackup
+    };
+  }
+
+  const seen = new Set(), items = [];
+  for(const raw of src.items){
+    if(!raw || typeof raw !== 'object' || !TYPES.includes(raw.type)) continue;
+    const id = (typeof raw.id === 'string' && raw.id && !seen.has(raw.id)) ? raw.id : uid();
+    seen.add(id);
+    let dd = null;
+    if(raw.done){
+      dd = DATE_RE.test(raw.doneDate || '') ? raw.doneDate : todayIso();
+      if(dd > todayIso()) dd = todayIso();
+    }
+    items.push({
+      id, type: raw.type,
+      title: String(raw.title ?? '').slice(0, 500),
+      author: String(raw.author ?? '').slice(0, 200),
+      link: safeHref(String(raw.link ?? '')),
+      done: !!raw.done, doneDate: dd,
+      note: String(raw.note ?? '')
+    });
+  }
+
+  const dayNotes = {};
+  if(src.dayNotes && typeof src.dayNotes === 'object'){
+    for(const [k,v] of Object.entries(src.dayNotes)){
+      if(!DATE_RE.test(k) || !v || typeof v !== 'object') continue;
+      const cleaned = {};
+      for(const t of TYPES) if(typeof v[t] === 'string') cleaned[t] = v[t];
+      if(typeof v.general === 'string') cleaned.general = v.general;
+      if(Object.keys(cleaned).length) dayNotes[k] = cleaned;
+    }
+  }
+
+  return {
+    app:'bradbury-challenge', version:2, items, dayNotes,
+    updated: typeof src.updated === 'string' ? src.updated : null,
+    lastBackup: typeof src.lastBackup === 'string' ? src.lastBackup : null
+  };
+}
 
 function load(){
-  try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
-  return{start:iso(new Date()),items:[],dayNotes:{},lastBackup:null};
+  try {
+    const r2 = localStorage.getItem(KEY);
+    if(r2){ const j = JSON.parse(r2); if(valid(j)) return norm(j); }
+    const r1 = localStorage.getItem(OLD_KEY);
+    if(r1){
+      const j = JSON.parse(r1);
+      if(valid(j)){
+        const n = norm(j);
+        localStorage.setItem(KEY, JSON.stringify(n));
+        localStorage.removeItem(OLD_KEY);
+        return n;
+      }
+    }
+  } catch(e) {}
+  return blank();
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 
-function dayNum(date){
-  const [y,m,d]=S.start.split('-').map(Number);
-  const a=Date.UTC(y,m-1,d),b=Date.UTC(date.getFullYear(),date.getMonth(),date.getDate());
-  return Math.round((b-a)/864e5)+1;
+let S = load(), tab = 'today', vd = todayIso(), pf = 'all', showDone = false;
+let saveTimer = null, saveWarned = false;
+
+function save(){
+  S.updated = new Date().toISOString();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){
+    if(!saveWarned){ saveWarned = true; alert('Warning: your data could not be saved (storage full or blocked). Download a backup now.'); }
+  }
 }
-function dayDate(n){const [y,m,d]=S.start.split('-').map(Number);return new Date(y,m-1,d+n-1)}
-const fmt=d=>d.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-const today=()=>dayNum(new Date());
-const itemsFor=(n,t)=>S.items.filter(i=>i.day===n&&(!t||i.type===t));
-const count=n=>TYPES.filter(t=>itemsFor(n,t).some(i=>i.done)).length;
+function saveSoon(){ clearTimeout(saveTimer); saveTimer = setTimeout(() => { saveTimer = null; save(); }, 400); }
+function flushSave(){ if(saveTimer){ clearTimeout(saveTimer); saveTimer = null; save(); } }
+window.addEventListener('beforeunload', flushSave);
+window.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') flushSave(); });
+
+const findItem = id => S.items.find(i => i.id === id);
 
 function stats(){
-  const t=today();let full=0,total=0,streak=0;
-  for(let n=1;n<=1000;n++){const c=count(n);total+=S.items.filter(i=>i.day===n&&i.done).length;if(c===3)full++}
-  let n=t;if(count(n)<3)n--;
-  while(n>=1&&count(n)===3){streak++;n--}
-  return{full,total,streak,t};
-}
-function nextFreeDay(type){
-  let n=Math.max(1,today());
-  while(S.items.some(i=>i.type===type&&i.day===n))n++;
-  return n;
+  const m = {};
+  S.items.forEach(i => { if(i.done && i.doneDate) (m[i.doneDate] ??= new Set()).add(i.type); });
+  const full = d => m[d] && m[d].size === 3;
+  let streak = 0, d = new Date();
+  if(!full(iso(d))) d = addDays(d, -1);
+  while(full(iso(d))){ streak++; d = addDays(d, -1); }
+  return {full: Object.keys(m).filter(full).length, total: S.items.filter(i => i.done).length, streak};
 }
 
-function renderNav(){
-  const tabs=[['today','Today'],['plan','Plan'],['journal','Journal'],['backup','Backup']];
-  $('#nav').innerHTML=tabs.map(([k,l])=>`<button class="${tab===k?'on':''}" data-tab="${k}">${l}</button>`).join('');
+function addItem(type, title, author, link, date){
+  if(!type || !TYPES.includes(type)) return {ok:false, msg:'Unknown type'};
+  const t = String(title ?? '').trim();
+  if(!t) return {ok:false, msg:'Title is required'};
+  const d = date && DATE_RE.test(date) && date <= todayIso() ? date : null;
+  S.items.push({
+    id: uid(), type,
+    title: t.slice(0, 500),
+    author: String(author ?? '').trim().slice(0, 200),
+    link: safeHref(String(link ?? '')),
+    done: !!d, doneDate: d, note: ''
+  });
+  return {ok:true};
 }
+
 function render(){
-  renderNav();
-  if(viewDay==null)viewDay=Math.min(Math.max(today(),1),1000);
-  ({today:rToday,plan:rPlan,journal:rJournal,backup:rBackup})[tab]();
+  const tabs = [['today','Log'],['plan','Plan'],['journal','Journal'],['data','Backup']];
+  $('#nav').innerHTML = tabs.map(([k,l]) =>
+    `<button class="${tab===k?'on':''}" data-tab="${k}" aria-pressed="${tab===k}">${l}</button>`).join('');
+  ({today: rToday, plan: rPlan, journal: rJournal, data: rData})[tab]();
 }
 
 function rToday(){
-  const st=stats(),n=viewDay;
-  const cells=[];
-  for(let d=1;d<=1000;d++){
-    const c=count(d);
-    cells.push(`<div class="cell c${c} ${d===st.t?'today':''} ${d>st.t?'fut':''} ${d===n?'sel':''}" data-go="${d}" title="Day ${d} · ${fmt(dayDate(d))} · ${c}/3"></div>`);
-  }
-  const blocks=TYPES.map(t=>{
-    const its=itemsFor(n,t);
-    if(!its.length)return`<div class="card"><div class="tag ${t}">${LABEL[t]}</div><div class="mute">Nothing planned for this day. <a href="#" data-tab="plan">Add one in Plan</a>.</div></div>`;
-    return its.map(i=>`<div class="card item ${i.done?'done':''}">
-      <div class="row"><span class="tag ${t}">${LABEL[t]}</span><span style="flex:1"></span>
-      <label class="row" style="gap:6px"><input type="checkbox" style="width:auto" data-done="${i.id}" ${i.done?'checked':''}> Read${i.doneDate?` <span class="mute">(${i.doneDate})</span>`:''}</label></div>
-      <h3>${i.link?`<a href="${esc(i.link)}" target="_blank" rel="noopener">${esc(i.title)}</a>`:esc(i.title)}</h3>
-      <div class="mute">${esc(i.author)}</div>
-      <textarea data-note="${i.id}" placeholder="Summary, thoughts, favourite lines…">${esc(i.note||'')}</textarea>
-      ${!i.done&&i.day<st.t?`<button style="margin-top:6px" data-totoday="${i.id}">Move to today</button>`:''}
-    </div>`).join('');
+  const st = stats();
+  const sec = TYPES.map(t => {
+    const dn = S.items.filter(i => i.type === t && i.done && i.doneDate === vd);
+    const plan = S.items.filter(i => i.type === t && !i.done);
+    let body;
+    if(dn.length){
+      body = dn.map(i => {
+        const href = safeHref(i.link);
+        const title = href ? `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a>` : esc(i.title);
+        return `<div style="margin-top:6px"><div class="row"><h3 style="flex:1">✓ ${title} <span class="mute">${esc(i.author)}</span></h3><button type="button" data-undo="${esc(i.id)}">Undo</button></div></div>`;
+      }).join('');
+    } else if(plan.length){
+      body = `<div class="row" style="margin:10px 0">
+        <select id="sel-${t}" style="flex:1" aria-label="Choose ${LABEL[t].toLowerCase()} to mark done">
+          ${plan.map(i => `<option value="${esc(i.id)}">${esc(i.title)}${i.author?' — '+esc(i.author):''}</option>`).join('')}
+        </select>
+        <button type="button" class="pri" data-mark="${t}">Mark done on ${esc(fmt(vd))}</button>
+      </div>`;
+    } else {
+      body = `<div class="mute" style="margin:10px 0 4px">Nothing planned. Add the piece you read:</div>
+        <div class="row">
+          <input id="qt-${t}" placeholder="Title" style="flex:2" aria-label="${LABEL[t]} title">
+          <input id="qa-${t}" placeholder="Author" style="flex:1" aria-label="${LABEL[t]} author">
+          <button type="button" class="pri" data-quick="${t}">Add &amp; mark done</button>
+        </div>`;
+    }
+    return `<div class="card">
+      <div class="tag ${esc(t)}">${LABEL[t]}</div>
+      ${body}
+      <div class="tag mute" style="margin-top:12px">${LABEL[t]} notes · ${esc(fmt(vd))}</div>
+      <textarea data-dn="${t}" aria-label="Notes for ${LABEL[t].toLowerCase()}" placeholder="Summary, thoughts, favourite lines…">${esc(S.dayNotes[vd]?.[t] || '')}</textarea>
+    </div>`;
   }).join('');
-  $('#view').innerHTML=`
-  <div class="stats">
-    <div class="card stat"><b>Day ${st.t>0&&st.t<=1000?st.t:'–'}</b><span>of 1000</span></div>
-    <div class="card stat"><b>${st.streak}</b><span>night streak</span></div>
-    <div class="card stat"><b>${st.full}</b><span>complete nights</span></div>
-    <div class="card stat"><b>${st.total}</b><span>pieces read</span></div>
-  </div>
-  <div class="card"><div class="bar"><i style="width:${st.full/10}%"></i></div>
-    <div class="mute" style="margin-top:6px">${(st.full/10).toFixed(1)}% of the challenge complete</div></div>
-  <div class="row" style="margin:14px 0 8px">
-    <button data-step="-1">←</button>
-    <div style="flex:1;text-align:center"><b>Day ${n}</b> · ${fmt(dayDate(n))}</div>
-    <button data-step="1">→</button>
-    <button data-step="0">Today</button>
-  </div>
-  ${blocks}
-  <div class="card"><div class="tag">Notes for the night</div>
-    <textarea data-daynote="${n}" placeholder="Anything about tonight's reading as a whole…">${esc(S.dayNotes[n]||'')}</textarea></div>
-  <div class="card"><div class="tag" style="margin-bottom:8px">1000 nights</div><div class="grid">${cells.join('')}</div>
-  <div class="mute" style="margin-top:8px">Click a square to jump to that day. Green = all three read.</div></div>`;
+
+  const pct = Math.min(100, st.full/10);
+  $('#view').innerHTML = `
+    <div class="stats">
+      <div class="card"><b>${st.full}</b><span>of 1000 nights complete</span></div>
+      <div class="card" title="Consecutive nights with all three pieces read; today counts once complete."><b>${st.streak}</b><span>night streak</span></div>
+      <div class="card"><b>${st.total}</b><span>pieces read</span></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i style="width:${pct}%"></i></div>
+    <div class="mute" style="margin-bottom:14px">${pct.toFixed(1)}% done</div>
+    <div class="row" style="margin-bottom:12px">
+      <button type="button" data-step="-1" aria-label="Previous day">←</button>
+      <input type="date" id="vd" value="${esc(vd)}" max="${esc(todayIso())}" style="flex:1;width:auto" aria-label="Date">
+      <button type="button" data-step="1" aria-label="Next day">→</button>
+      <button type="button" data-step="0">Today</button>
+    </div>
+    ${sec}
+    <div class="card">
+      <div class="tag">Notes for the night · ${esc(fmt(vd))}</div>
+      <textarea data-dn="general" aria-label="Notes for the night" placeholder="Anything about tonight's reading as a whole…">${esc(S.dayNotes[vd]?.general || '')}</textarea>
+    </div>`;
 }
 
 function rPlan(){
-  const [y,m,d]=S.start.split('-');
-  const list=S.items.filter(i=>(planFilter==='all'||i.type===planFilter)&&(showDone||!i.done))
-    .sort((a,b)=>(a.day??1e9)-(b.day??1e9));
-  $('#view').innerHTML=`
-  <div class="card"><div class="tag" style="margin-bottom:8px">Add to the plan</div>
-    <div class="form">
-      <select id="nType">${TYPES.map(t=>`<option value="${t}">${LABEL[t]}</option>`).join('')}</select>
-      <input id="nTitle" placeholder="Title">
-      <input id="nAuthor" placeholder="Author">
-      <input id="nLink" class="full" placeholder="Link / source (optional)">
-      <input id="nDay" type="number" min="1" max="1000" placeholder="Day (blank = next free)">
-      <button class="pri" data-add>Add</button>
+  const list = S.items.filter(i => (pf === 'all' || i.type === pf) && (showDone || !i.done));
+  const c = TYPES.map(t => {
+    const all = S.items.filter(i => i.type === t);
+    return {t, all: all.length, read: all.filter(i => i.done).length, left: all.filter(i => !i.done).length};
+  });
+  const min = Math.min(...c.map(x => x.left));
+  const lim = c.filter(x => x.left === min).map(x => LABEL[x.t].toLowerCase()).join(' / ');
+  const untilDate = iso(addDays(new Date(), Math.max(0, min-1)));
+  const summary = `
+    <div class="card">
+      <div class="tag" style="margin-bottom:8px">Plan summary</div>
+      <div class="stats">
+        ${c.map(x => `<div class="card"><span class="tag ${esc(x.t)}">${LABEL[x.t]}</span><b>${x.left} <small class="mute">unread</small></b><span>${x.all} added · ${x.read} read</span></div>`).join('')}
+      </div>
+      <div>${min > 0
+        ? `<b>${min}</b> full night${min>1?'s':''} planned (one of each) – until <b>${esc(fmt(untilDate))}</b> if you start today. Limited by: ${esc(lim)}.`
+        : `<b>You've run out of ${esc(lim)} to read.</b> Add more to keep going.`}</div>
+    </div>`;
+
+  const itemsHtml = list.length
+    ? list.map(i => `
+      <div class="pl">
+        <div class="g">
+          <div class="row" style="gap:6px;margin-bottom:2px">
+            <span class="tag ${esc(i.type)}">${LABEL[i.type]}</span>
+            ${i.done ? '<span class="mute">✓ read</span>' : ''}
+          </div>
+          <input class="edit-title" data-settitle="${esc(i.id)}" value="${esc(i.title)}" aria-label="Title">
+          <input class="edit-author" data-setauthor="${esc(i.id)}" value="${esc(i.author)}" placeholder="Author" aria-label="Author">
+          <input class="edit-link" data-setlink="${esc(i.id)}" value="${esc(i.link)}" placeholder="Link (optional)" aria-label="Link">
+        </div>
+        ${i.done
+          ? `<input type="date" value="${esc(i.doneDate || '')}" data-setdate="${esc(i.id)}" max="${esc(todayIso())}" aria-label="Done date" style="width:auto">
+             <button type="button" data-undo="${esc(i.id)}" aria-label="Unmark ${esc(i.title)}">Unmark</button>`
+          : `<button type="button" data-mv-id="${esc(i.id)}" data-mv-dir="-1" aria-label="Move up">↑</button>
+             <button type="button" data-mv-id="${esc(i.id)}" data-mv-dir="1" aria-label="Move down">↓</button>`}
+        <button type="button" data-del="${esc(i.id)}" aria-label="Delete ${esc(i.title)}" title="Delete">✕</button>
+      </div>`).join('')
+    : '<div class="mute">Nothing here.</div>';
+
+  $('#view').innerHTML = summary + `
+    <div class="card">
+      <div class="tag" style="margin-bottom:8px">Add to the plan</div>
+      <div class="form">
+        <select id="nType" aria-label="Type">${TYPES.map(t => `<option value="${t}" ${pf===t?'selected':''}>${LABEL[t]}</option>`).join('')}</select>
+        <input id="nTitle" placeholder="Title" aria-label="Title">
+        <input id="nAuthor" placeholder="Author" aria-label="Author">
+        <input id="nLink" class="full" placeholder="Link / source (optional)" aria-label="Link">
+        <button type="button" class="pri full" data-add>Add</button>
+      </div>
     </div>
-    <div class="mute" style="margin-top:8px">Bulk add: <a href="#" data-bulk>paste a list</a> (one per line, “Title | Author”).</div>
-    <div id="bulk" class="hide" style="margin-top:8px"><textarea id="bulkTxt" placeholder="The Road Not Taken | Robert Frost"></textarea>
-      <button data-bulkadd>Add all (uses selected type)</button></div>
-  </div>
-  <div class="card"><div class="row"><span class="mute">Day 1 is</span>
-    <input type="date" id="start" value="${S.start}" style="width:auto">
-    <span class="mute">(changing this shifts every date)</span></div></div>
-  <div class="row" style="margin-bottom:8px">
-    ${['all',...TYPES].map(t=>`<button class="${planFilter===t?'on':''}" data-pf="${t}">${t==='all'?'All':LABEL[t]}</button>`).join('')}
-    <label class="row" style="gap:6px;margin-left:auto"><input type="checkbox" style="width:auto" id="sd" ${showDone?'checked':''}> show read</label>
-  </div>
-  <div class="card">${list.length?list.map(i=>`<div class="pl">
-    <input type="number" min="1" max="1000" value="${i.day??''}" data-setday="${i.id}" title="Day">
-    <div><span class="tag ${i.type}">${LABEL[i.type]}</span> ${i.done?'✓ ':''}<b>${esc(i.title)}</b>
-      <div class="mute">${esc(i.author)}${i.day?` · ${fmt(dayDate(i.day))}`:''}</div></div>
-    <button data-del="${i.id}" title="Delete">✕</button></div>`).join(''):'<div class="mute">Nothing here yet.</div>'}</div>`;
+    <div class="row" style="margin-bottom:8px">
+      ${['all',...TYPES].map(t => `<button type="button" class="${pf===t?'on':''}" data-pf="${t}" aria-pressed="${pf===t}">${t==='all'?'All':LABEL[t]}</button>`).join('')}
+      <label class="row" style="margin-left:auto;gap:6px">
+        <input type="checkbox" id="sd" style="width:auto" ${showDone?'checked':''}> show read
+      </label>
+    </div>
+    <div class="card">${itemsHtml}</div>
+    <div class="mute">Unread items are listed in reading order per type; the top one is “next up”. Edit titles, authors, and links inline.</div>`;
+}
+
+const jDates = () => {
+  const s = new Set();
+  Object.keys(S.dayNotes).forEach(k => { if(DATE_RE.test(k)) s.add(k); });
+  S.items.forEach(i => { if(i.done && DATE_RE.test(i.doneDate||'')) s.add(i.doneDate); });
+  return [...s].sort().reverse();
+};
+
+function jList(q){
+  q = q.toLowerCase();
+  return jDates().map(d => {
+    const its = S.items.filter(i => i.done && i.doneDate === d);
+    const n = S.dayNotes[d] || {};
+    const hay = (its.map(i => i.title + i.author + i.note).join(' ') + Object.values(n).join(' ')).toLowerCase();
+    if(q && !hay.includes(q)) return '';
+    return `<div class="card">
+      <b>${esc(fmt(d))}</b> <a href="#" class="mute" data-goto="${esc(d)}">open</a>
+      ${TYPES.map(t => {
+        const x = its.filter(i => i.type === t);
+        if(!x.length && !n[t]) return '';
+        return `<div style="margin-top:8px">
+          <span class="tag ${esc(t)}">${LABEL[t]}</span>
+          ${x.map(i => `<b>${esc(i.title)}</b> <span class="mute">${esc(i.author)}</span>${i.note?`<div style="white-space:pre-wrap">${esc(i.note)}</div>`:''}`).join('<br>')}
+          ${n[t]?`<div style="white-space:pre-wrap" class="mute">${esc(n[t])}</div>`:''}
+        </div>`;
+      }).join('')}
+      ${n.general?`<div class="mute" style="white-space:pre-wrap;margin-top:8px">${esc(n.general)}</div>`:''}
+    </div>`;
+  }).join('') || '<div class="mute">No entries yet.</div>';
 }
 
 function rJournal(){
-  const days=new Set(Object.keys(S.dayNotes).filter(k=>S.dayNotes[k]).map(Number));
-  S.items.forEach(i=>{if(i.day&&(i.note||i.done))days.add(i.day)});
-  const arr=[...days].sort((a,b)=>b-a);
-  $('#view').innerHTML=`<input id="q" placeholder="Search notes, titles, authors…" style="margin-bottom:12px">
-  <div id="jl">${jList(arr,'')}</div>`;
-}
-function jList(arr,q){
-  q=q.toLowerCase();
-  const out=arr.map(n=>{
-    const its=itemsFor(n).filter(i=>i.note||i.done);
-    const dn=S.dayNotes[n]||'';
-    const hay=(dn+its.map(i=>i.title+i.author+i.note).join(' ')).toLowerCase();
-    if(q&&!hay.includes(q))return'';
-    return`<div class="card"><b>Day ${n}</b> <span class="mute">· ${fmt(dayDate(n))}</span> <a href="#" data-go="${n}" data-tab="today" class="mute">open</a>
-    ${its.map(i=>`<div style="margin-top:8px"><span class="tag ${i.type}">${LABEL[i.type]}</span> <b>${esc(i.title)}</b> <span class="mute">${esc(i.author)}</span>
-      ${i.note?`<div style="white-space:pre-wrap;font-family:Georgia,serif">${esc(i.note)}</div>`:''}</div>`).join('')}
-    ${dn?`<div style="margin-top:8px;white-space:pre-wrap;font-family:Georgia,serif" class="mute">${esc(dn)}</div>`:''}</div>`;
-  }).join('');
-  return out||'<div class="mute">No entries yet.</div>';
+  $('#view').innerHTML = `<input id="q" placeholder="Search notes, titles, authors…" style="margin-bottom:12px" aria-label="Search journal"><div id="jl">${jList('')}</div>`;
 }
 
-function rBackup(){
-  $('#view').innerHTML=`<div class="card">
-    <p>Your data lives in this browser (localStorage). Download a JSON backup regularly, and import it to restore or move to another device.</p>
-    <p class="mute">Last backup: ${S.lastBackup?new Date(S.lastBackup).toLocaleString():'never'}</p>
-    <div class="row"><button class="pri" data-export>Download backup (.json)</button>
-    <button data-import>Import backup…</button>
-    <input type="file" id="file" accept=".json,application/json" class="hide"></div>
-    <p class="mute" style="margin-top:12px">Importing replaces everything currently stored.</p>
-    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
-    <button data-reset>Erase all data</button></div>`;
+function rData(){
+  $('#view').innerHTML = `
+    <div class="card">
+      <p>Your data lives in this browser (localStorage). Download a JSON backup regularly, and import it to restore or move to another device.</p>
+      <p class="mute">Last backup: ${S.lastBackup ? esc(new Date(S.lastBackup).toLocaleString()) : 'never'}</p>
+      <div class="row">
+        <button type="button" class="pri" data-dl>Download backup (.json)</button>
+        <button type="button" data-up>Import backup…</button>
+      </div>
+      <p class="mute" style="margin-top:12px">Importing replaces everything currently stored.</p>
+      <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+      <button type="button" data-reset>Erase all data</button>
+    </div>`;
 }
 
 function exportJSON(){
-  S.lastBackup=new Date().toISOString();save();
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='bradbury-backup-'+iso(new Date())+'.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);rBackup();
+  S.lastBackup = new Date().toISOString(); save();
+  const blob = new Blob([JSON.stringify(S, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bradbury-backup-' + iso(new Date()) + '.json';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  rData();
 }
 
-function addItem(type,title,author,link,day){
-  if(!title.trim())return;
-  S.items.push({id:uid(),type,title:title.trim(),author:(author||'').trim(),link:(link||'').trim(),
-    day:day||nextFreeDay(type),done:false,doneDate:null,note:''});
+function doAdd(){
+  const r = addItem($('#nType')?.value, $('#nTitle')?.value, $('#nAuthor')?.value, $('#nLink')?.value, null);
+  if(!r.ok){ alert(r.msg); $('#nTitle')?.focus(); return; }
+  save();
+  const t = $('#nTitle'), a = $('#nAuthor'), l = $('#nLink');
+  if(t) t.value = ''; if(a) a.value = ''; if(l) l.value = '';
+  render();
+  requestAnimationFrame(() => document.getElementById('nTitle')?.focus());
 }
 
-document.addEventListener('click',e=>{
-  const t=e.target.closest('button,a,[data-go],[data-tab]');if(!t)return;
-  const D=t.dataset;
-  if(t.tagName==='A')e.preventDefault();
-  if(D.tab){tab=D.tab}
-  if(D.go){viewDay=+D.go;tab='today';window.scrollTo(0,0)}
-  if(D.step!==undefined){viewDay=D.step==='0'?Math.min(Math.max(today(),1),1000):Math.min(1000,Math.max(1,viewDay+ +D.step))}
-  if(D.pf)planFilter=D.pf;
-  if(D.bulk!==undefined){$('#bulk').classList.toggle('hide');return}
-  if(D.add!==undefined){
-    addItem($('#nType').value,$('#nTitle').value,$('#nAuthor').value,$('#nLink').value,parseInt($('#nDay').value)||null);save();
+function doMark(type){
+  if(S.items.some(i => i.type === type && i.done && i.doneDate === vd)){
+    alert('You already logged a ' + LABEL[type].toLowerCase() + ' on ' + fmt(vd) + '.'); return;
   }
-  if(D.bulkadd!==undefined){
-    $('#bulkTxt').value.split('\n').filter(l=>l.trim()).forEach(l=>{const [a,b]=l.split('|');addItem($('#nType').value,a,b)});save();
+  const s = document.getElementById('sel-' + type);
+  if(!s) return;
+  const i = findItem(s.value);
+  if(!i) return;
+  i.done = true; i.doneDate = vd; save();
+}
+
+function doQuick(type){
+  if(S.items.some(i => i.type === type && i.done && i.doneDate === vd)){
+    alert('You already logged a ' + LABEL[type].toLowerCase() + ' on ' + fmt(vd) + '.'); return;
   }
-  if(D.del){if(!confirm('Delete this item and its notes?'))return;S.items=S.items.filter(i=>i.id!==D.del);save()}
-  if(D.totoday){const i=S.items.find(i=>i.id===D.totoday);
-    const n=today();const clash=S.items.find(x=>x.type===i.type&&x.day===n&&x!==i);
-    if(clash)clash.day=nextFreeDay(i.type)>n?nextFreeDay(i.type):n+1;
-    i.day=n;save();viewDay=n}
-  if(D.export!==undefined){exportJSON();return}
-  if(D.import!==undefined){$('#file').click();return}
-  if(D.reset!==undefined){if(confirm('Erase everything? Download a backup first!')){S=load.call(null,localStorage.removeItem(KEY));save()}}
+  const r = addItem(type, document.getElementById('qt-'+type)?.value, document.getElementById('qa-'+type)?.value, '', vd);
+  if(!r.ok){ alert(r.msg); return; }
+  save();
+}
+
+function doMove(id, dir){
+  const i = findItem(id); if(!i) return;
+  const list = S.items.filter(x => x.type === i.type && !x.done);
+  const other = list[list.indexOf(i) + dir];
+  if(!other) return;
+  const a = S.items.indexOf(i), b = S.items.indexOf(other);
+  [S.items[a], S.items[b]] = [S.items[b], S.items[a]];
+  save();
+}
+
+// Hidden file input for imports
+const fileInput = document.createElement('input');
+fileInput.type = 'file'; fileInput.accept = '.json,application/json'; fileInput.style.display = 'none';
+document.body.appendChild(fileInput);
+fileInput.addEventListener('change', () => {
+  const x = fileInput.files[0]; fileInput.value = '';
+  if(!x) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let j; try { j = JSON.parse(r.result); } catch {}
+    if(!valid(j)){ alert('That file is not a valid Bradbury backup.'); return; }
+    S = norm(j); save(); vd = todayIso(); alert('Backup imported.'); render();
+  };
+  r.readAsText(x);
+});
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-tab],[data-step],[data-pf],[data-mv-id],[data-goto],button,a');
+  if(!t) return;
+  const D = t.dataset;
+  if(t.tagName === 'A' && (D.tab || D.goto)) e.preventDefault();
+
+  if(D.up !== undefined){ fileInput.click(); return; }
+  if(D.dl !== undefined){ exportJSON(); return; }
+  if(D.reset !== undefined){
+    if(!confirm('Erase everything? Download a backup first!')) return;
+    try { localStorage.removeItem(KEY); localStorage.removeItem(OLD_KEY); } catch {}
+    S = blank(); vd = todayIso(); pf = 'all'; showDone = false; tab = 'today';
+    save(); render(); return;
+  }
+
+  if(D.tab) tab = D.tab;
+  if(D.goto && DATE_RE.test(D.goto)){ vd = D.goto > todayIso() ? todayIso() : D.goto; tab = 'today'; }
+  if(D.step !== undefined){
+    const cur = DATE_RE.test(vd) ? vd : todayIso();
+    if(D.step === '0') vd = todayIso();
+    else { const nxt = iso(addDays(pd(cur), +D.step)); vd = nxt > todayIso() ? todayIso() : nxt; }
+  }
+  if(D.pf) pf = D.pf;
+
+  if(D.add !== undefined) doAdd();
+  if(D.mark) doMark(D.mark);
+  if(D.quick) doQuick(D.quick);
+  if(D.undo){ const i = findItem(D.undo); if(i){ i.done = false; i.doneDate = null; save(); } }
+  if(D.del && confirm('Delete this item and its notes?')){ S.items = S.items.filter(i => i.id !== D.del); save(); }
+  if(D.mvId !== undefined) doMove(D.mvId, +D.mvDir);
+
   render();
 });
 
-document.addEventListener('change',e=>{
-  const el=e.target,D=el.dataset;
-  if(D.done){const i=S.items.find(i=>i.id===D.done);i.done=el.checked;i.doneDate=el.checked?iso(new Date()):null;save();render()}
-  else if(D.setday){const i=S.items.find(i=>i.id===D.setday);i.day=parseInt(el.value)||null;save();render()}
-  else if(el.id==='start'&&el.value){S.start=el.value;save();viewDay=null;render()}
-  else if(el.id==='sd'){showDone=el.checked;render()}
-  else if(el.id==='file'){
-    const f=el.files[0];if(!f)return;const r=new FileReader();
-    r.onload=()=>{try{const j=JSON.parse(r.result);
-      if(!j||!Array.isArray(j.items)||!j.start)throw 0;
-      S={start:j.start,items:j.items,dayNotes:j.dayNotes||{},lastBackup:j.lastBackup||null};save();viewDay=null;alert('Backup imported.');render()}
-      catch(_){alert('That file is not a valid Bradbury backup.')}};
-    r.readAsText(f);
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && ['nTitle','nAuthor','nLink'].includes(e.target.id)){
+    e.preventDefault();
+    document.querySelector('[data-add]')?.click();
   }
 });
 
-document.addEventListener('input',e=>{
-  const el=e.target,D=el.dataset;
-  if(D.note){S.items.find(i=>i.id===D.note).note=el.value;save()}
-  else if(D.daynote){S.dayNotes[D.daynote]=el.value;save()}
-  else if(el.id==='q'){
-    const days=new Set(Object.keys(S.dayNotes).map(Number));S.items.forEach(i=>{if(i.day&&(i.note||i.done))days.add(i.day)});
-    $('#jl').innerHTML=jList([...days].sort((a,b)=>b-a),el.value);
+document.addEventListener('change', e => {
+  const el = e.target, D = el.dataset;
+  if(el.id === 'vd' && el.value){
+    vd = el.value > todayIso() ? todayIso() : el.value; render();
+  } else if(el.id === 'sd'){
+    showDone = el.checked; render();
+  } else if(D.setdate){
+    const i = findItem(D.setdate); if(!i) return;
+    const val = el.value;
+    if(!val){ i.done = false; i.doneDate = null; save(); render(); return; }
+    if(val > todayIso()){ alert('Cannot set a future date.'); el.value = i.doneDate || ''; return; }
+    if(S.items.some(x => x !== i && x.type === i.type && x.done && x.doneDate === val)){
+      alert('You already logged a ' + LABEL[i.type].toLowerCase() + ' on that date.');
+      el.value = i.doneDate || ''; return;
+    }
+    i.done = true; i.doneDate = val; save(); render();
+  } else if(D.settitle){
+    const i = findItem(D.settitle);
+    if(i && !i.title.trim()){ i.title = 'Untitled'; el.value = 'Untitled'; save(); }
+  } else if(D.setauthor){
+    const i = findItem(D.setauthor);
+    if(i){ i.author = i.author.trim(); el.value = i.author; save(); }
+  } else if(D.setlink){
+    const i = findItem(D.setlink);
+    if(i){ i.link = safeHref(el.value); el.value = i.link; save(); }
+  }
+});
+
+document.addEventListener('input', e => {
+  const el = e.target, D = el.dataset;
+  if(D.dn){ (S.dayNotes[vd] ??= {})[D.dn] = el.value; saveSoon(); }
+  else if(D.settitle){ const i = findItem(D.settitle); if(i){ i.title = el.value.slice(0, 500); saveSoon(); } }
+  else if(D.setauthor){ const i = findItem(D.setauthor); if(i){ i.author = el.value.slice(0, 200); saveSoon(); } }
+  else if(D.setlink){ const i = findItem(D.setlink); if(i){ i.link = el.value.slice(0, 2000); saveSoon(); } }
+  else if(el.id === 'q'){ const jl = document.getElementById('jl'); if(jl) jl.innerHTML = jList(el.value); }
+});
+
+window.addEventListener('storage', e => {
+  if(e.key !== KEY || !e.newValue) return;
+  if(document.visibilityState !== 'visible') return;
+  if(confirm('This challenge was updated in another tab. Reload the latest data? (Unsaved changes here will be lost.)')){
+    S = load(); vd = todayIso(); render();
   }
 });
 
